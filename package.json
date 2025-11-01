@@ -11,7 +11,8 @@
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.6"
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2"
   },
   "peerDependencies": {
     "typescript": "^5"
