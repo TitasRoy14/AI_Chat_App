@@ -4,11 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run index.ts"
+    "dev": "bun run index.ts",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6"
   },
   "peerDependencies": {
     "typescript": "^5"
