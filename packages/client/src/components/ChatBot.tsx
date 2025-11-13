@@ -12,8 +12,13 @@ type ChatResponse = {
   message: string;
 };
 
+type Message = {
+  content: string;
+  role: "user" | "bot";
+};
+
 const ChatBot = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const conversationId = useRef(crypto.randomUUID()); // using ref because
   // we don't want it to change or cause any re-render
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
@@ -24,14 +29,14 @@ const ChatBot = () => {
   });
 
   const onSubmit = async ({ prompt }: FormData) => {
-    setMessages((prev) => [...prev, prompt]);
+    setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
     reset();
     textareaRef.current?.focus();
     const { data } = await axios.post<ChatResponse>("/api/chat", {
       prompt,
       conversationId: conversationId.current,
     });
-    setMessages((prev) => [...prev, data.message]);
+    setMessages((prev) => [...prev, { content: data.message, role: "bot" }]);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
@@ -43,9 +48,18 @@ const ChatBot = () => {
 
   return (
     <div>
-      <div>
+      <div className="flex flex-col gap-3 mb-10">
         {messages.map((message, index) => (
-          <p key={index}>{message}</p>
+          <p
+            key={index}
+            className={`px-3 py-1 rounded-xl ${
+              message.role === "user"
+                ? "bg-blue-600 text-white self-end"
+                : "bg-gray-300 text-black self-start"
+            }`}
+          >
+            {message.content}
+          </p>
         ))}
       </div>
       <form
