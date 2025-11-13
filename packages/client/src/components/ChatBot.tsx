@@ -1,14 +1,17 @@
-import { useForm } from "react-hook-form";
-import { useRef } from "react";
+import axios from "axios";
 import type { KeyboardEvent } from "react";
-import { Button } from "./ui/button";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
 import { FaArrowUp } from "react-icons/fa";
+import { Button } from "./ui/button";
 
 type FormData = {
   prompt: string;
 };
 
 const ChatBot = () => {
+  const conversationId = useRef(crypto.randomUUID()); // using ref because
+  // we don't want it to change or cause any re-render
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { ref, ...rest } = register("prompt", {
@@ -16,10 +19,14 @@ const ChatBot = () => {
     validate: (data) => data.trim().length > 0,
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+  const onSubmit = async ({ prompt }: FormData) => {
     reset();
     textareaRef.current?.focus();
+    const { data } = await axios.post("/api/chat", {
+      prompt,
+      conversationId: conversationId.current,
+    });
+    console.log(data);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
