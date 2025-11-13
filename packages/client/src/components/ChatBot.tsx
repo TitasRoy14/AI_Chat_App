@@ -1,4 +1,5 @@
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 import type { KeyboardEvent } from "react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -55,10 +56,10 @@ const ChatBot = () => {
             className={`px-3 py-1 rounded-xl ${
               message.role === "user"
                 ? "bg-blue-600 text-white self-end"
-                : "bg-gray-300 text-black self-start"
+                : "bg-gray-300 text-black self-start max-w-4xl"
             }`}
           >
-            {message.content}
+            <ReactMarkdown>{message.content}</ReactMarkdown>
           </p>
         ))}
       </div>
