@@ -21,7 +21,7 @@ export const chatService = {
     const messages = [...history, { role: "user" as const, content: prompt }];
 
     const response = await client.chat.completions.create({
-      model: "nvidia/nemotron-nano-9b-v2:free",
+      model: "meta-llama/llama-3.3-70b-instruct:free",
       messages: messages,
       max_tokens: 100,
     });
