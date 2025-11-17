@@ -20,6 +20,7 @@ type Message = {
 
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState<boolean>();
   const conversationId = useRef(crypto.randomUUID()); // using ref because
   // we don't want it to change or cause any re-render
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
@@ -31,6 +32,7 @@ const ChatBot = () => {
 
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
+    setIsTyping(true);
     reset();
     textareaRef.current?.focus();
     const { data } = await axios.post<ChatResponse>("/api/chat", {
@@ -38,6 +40,7 @@ const ChatBot = () => {
       conversationId: conversationId.current,
     });
     setMessages((prev) => [...prev, { content: data.message, role: "bot" }]);
+    setIsTyping(false);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
@@ -62,6 +65,14 @@ const ChatBot = () => {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </p>
         ))}
+
+        {isTyping && (
+          <div className="flex self-start gap-1 px-3 py-3 bg-gray-200 rounded-xl">
+            <div className="h-2 w-2 rounded-full bg-gray-800 animate-bounce "></div>
+            <div className="h-2 w-2 rounded-full bg-gray-800 animate-bounce [animation-delay:0.2s]"></div>
+            <div className="h-2  w-2 rounded-full bg-gray-800 animate-bounce [animation-delay:0.4s]"></div>
+          </div>
+        )}
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
