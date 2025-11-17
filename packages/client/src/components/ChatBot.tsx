@@ -1,7 +1,7 @@
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import type { KeyboardEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowUp } from "react-icons/fa";
 import { Button } from "./ui/button";
@@ -21,6 +21,7 @@ type Message = {
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const conversationId = useRef(crypto.randomUUID()); // using ref because
   // we don't want it to change or cause any re-render
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
@@ -29,6 +30,10 @@ const ChatBot = () => {
     required: true,
     validate: (data) => data.trim().length > 0,
   });
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
@@ -77,6 +82,7 @@ const ChatBot = () => {
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={onKeyDown}
+        ref={formRef}
         className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
       >
         <textarea
