@@ -21,9 +21,9 @@ export const chatService = {
     const messages = [...history, { role: "user" as const, content: prompt }];
 
     const response = await client.chat.completions.create({
-      model: "meta-llama/llama-3.3-70b-instruct:free",
+      model: "openai/gpt-oss-20b:free",
       messages: messages,
-      max_tokens: 100,
+      max_tokens: 200,
     });
 
     const assistantMessage = response.choices[0]!.message.content;

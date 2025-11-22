@@ -21,7 +21,7 @@ type Message = {
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>();
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const lastParagraphRef = useRef<HTMLDivElement | null>(null);
   const conversationId = useRef(crypto.randomUUID()); // using ref because
   // we don't want it to change or cause any re-render
   const { register, handleSubmit, reset, formState } = useForm<FormData>();
@@ -32,13 +32,13 @@ const ChatBot = () => {
   });
 
   useEffect(() => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    lastParagraphRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
     setIsTyping(true);
-    reset();
+    reset({ prompt: "" });
     textareaRef.current?.focus();
     const { data } = await axios.post<ChatResponse>("/api/chat", {
       prompt,
@@ -63,11 +63,12 @@ const ChatBot = () => {
     }
   };
   return (
-    <div>
-      <div className="flex flex-col gap-3 mb-10">
+    <div className="flex flex-col h-full">
+      <div className="flex flex-col flex-1 gap-3 mb-10 overflow-y-auto">
         {messages.map((message, index) => (
-          <p
+          <div
             key={index}
+            ref={index === messages.length - 1 ? lastParagraphRef : null}
             onCopy={onCopyMessage}
             className={`px-3 py-1 rounded-xl ${
               message.role === "user"
@@ -76,7 +77,7 @@ const ChatBot = () => {
             }`}
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
-          </p>
+          </div>
         ))}
 
         {isTyping && (
@@ -90,7 +91,6 @@ const ChatBot = () => {
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={onKeyDown}
-        ref={formRef}
         className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
       >
         <textarea
@@ -99,6 +99,7 @@ const ChatBot = () => {
             ref(e);
             textareaRef.current = e;
           }}
+          autoFocus
           className="w-full focus:outline-0 resize-none"
           placeholder="Ask anything"
           maxLength={1000}
