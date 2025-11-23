@@ -21,6 +21,7 @@ type Message = {
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>();
+  const [error, setError] = useState("");
   const lastParagraphRef = useRef<HTMLDivElement | null>(null);
   const conversationId = useRef(crypto.randomUUID()); // using ref because
   // we don't want it to change or cause any re-render
@@ -36,16 +37,23 @@ const ChatBot = () => {
   }, [messages]);
 
   const onSubmit = async ({ prompt }: FormData) => {
-    setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
-    setIsTyping(true);
-    reset({ prompt: "" });
-    textareaRef.current?.focus();
-    const { data } = await axios.post<ChatResponse>("/api/chat", {
-      prompt,
-      conversationId: conversationId.current,
-    });
-    setMessages((prev) => [...prev, { content: data.message, role: "bot" }]);
-    setIsTyping(false);
+    try {
+      setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
+      setIsTyping(true);
+      setError("");
+      reset({ prompt: "" });
+      textareaRef.current?.focus();
+      const { data } = await axios.post<ChatResponse>("/api/chat", {
+        prompt,
+        conversationId: conversationId.current,
+      });
+      setMessages((prev) => [...prev, { content: data.message, role: "bot" }]);
+    } catch (error) {
+      console.log(error);
+      setError("Something went wrong.Try again!");
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
@@ -87,6 +95,7 @@ const ChatBot = () => {
             <div className="h-2  w-2 rounded-full bg-gray-800 animate-bounce [animation-delay:0.4s]"></div>
           </div>
         )}
+        {error && <p className="text-red-500">{error}</p>}
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
