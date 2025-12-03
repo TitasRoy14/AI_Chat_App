@@ -34,7 +34,7 @@ const ChatMessages = ({ messages }: Props) => {
           className={`px-3 py-1 rounded-xl ${
             message.role === "user"
               ? "bg-blue-600 text-white self-end"
-              : "bg-gray-300 text-black self-start max-w-4xl"
+              : "bg-gray-300 text-black self-start max-w-md"
           }`}
         >
           <ReactMarkdown>{message.content}</ReactMarkdown>

@@ -1,5 +1,14 @@
+import fs from "fs";
+import path from "path";
 import { conversationRepository } from "../repositories/conversation.repository";
 import OpenAI from "openai";
+import template from "../prompts/chatbot.txt";
+
+const parkInfo = fs.readFileSync(
+  path.join(__dirname, "..", "prompts", "WildlifeWorldZoo.md"),
+  "utf-8",
+);
+const instructions = template.replace("{{parkInfo}}", parkInfo);
 
 const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -18,12 +27,17 @@ export const chatService = {
     const history =
       conversationRepository.getLastResponseId(conversationId) || [];
 
-    const messages = [...history, { role: "user" as const, content: prompt }];
+    const messages = [
+      { role: "system" as const, content: instructions },
+      ...history,
+      { role: "user" as const, content: prompt },
+    ];
 
     const response = await client.chat.completions.create({
       model: "openai/gpt-oss-20b:free",
+
       messages: messages,
-      max_tokens: 200,
+      max_tokens: 300,
     });
 
     const assistantMessage = response.choices[0]!.message.content;
